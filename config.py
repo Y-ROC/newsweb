@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from redis import StrictRedis
 
@@ -24,11 +25,13 @@ class Config(object):
 # 开发环境配置
 class DevelopmentConfig(Config):
     DEBUGE = True
+    LOG_LEVEL = logging.DEBUG
 
 
 # 生产环境配置
 class ProduceConfig(Config):
     DEBUGE = False
+    LOG_LEVEL = logging.ERROR
 
 
 config_dict = {
