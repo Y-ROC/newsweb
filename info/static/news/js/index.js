@@ -80,7 +80,7 @@ function updateNewsData() {
             }
             // 添加请求成功之后返回的数据
             // 显示数据
-            for (var i=0;i<resp.data.news_list.length;i++) {
+            for (var i = 0; i < resp.data.news_list.length; i++) {
                 var news = resp.data.news_list[i]
                 var content = '<li>'
                 content += '<a href="/news/' + news.id + '" class="news_pic fl"><img src="' + news.index_image_url + '?imageView2/1/w/170/h/170"></a>'
@@ -93,7 +93,7 @@ function updateNewsData() {
                 content += '</li>'
                 $(".list_con").append(content)
             }
-        }else {
+        } else {
             // 请求失败
             alert(resp.errmsg)
         }

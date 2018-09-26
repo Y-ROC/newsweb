@@ -8,6 +8,7 @@
     opacity: 0.4;
     z-index: 9998;
 }
+
 .imageUploadContainer {
     position: fixed;
     top: 50%;
@@ -20,12 +21,14 @@
     z-index: 9999;
     background: #FFFFFF;
 }
+
 .imageUploadContainer .imageUploadContainerInner {
     height: 200px;
     width: 400px;
     position: relative;
     background: transparent;
 }
+
 .imageUploadContainer .imageUploadContainerInner .imageUploadConfirmCase {
     position: absolute;
     bottom: 0;
@@ -42,14 +45,17 @@
     border-bottom-right-radius: 6px;
     border-bottom-left-radius: 6px;
 }
+
 .imageUploadContainer .imageUploadFormContainer {
     margin-top: 20px;
 }
+
 .imageUploadContainer .imageUploadError {
     line-height: 30px;
     text-align: center;
     color: #CF111D;
 }
+
 .imageUploadContainer label {
     height: 40px;
     line-height: 40px;
@@ -57,9 +63,11 @@
     text-align: right;
     padding-right: 10px;
 }
+
 .imageUploadContainer input[type="file"] {
     height: 40px;
 }
+
 .imageUploadFg {
     position: fixed;
     top: 0;
@@ -70,6 +78,7 @@
     opacity: 0.6;
     z-index: 10000;
 }
+
 .imageUploadFgLoading {
     position: fixed;
     top: 50%;
