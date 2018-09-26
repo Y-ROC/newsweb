@@ -49,4 +49,7 @@ def create_app(config_type):
     app.register_blueprint(home_blu)
     # 配置日志
     setup_log(config_class.LOG_LEVEL)
+    # 关联模型文件
+    import info.models
+
     return app
