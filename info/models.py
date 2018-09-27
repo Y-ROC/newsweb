@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from werkzeug.security import generate_password_hash
+
 from info import constants, db
 
 
@@ -56,6 +58,14 @@ class User(BaseModel, db.Model):
 
     # 当前用户所发布的新闻
     news_list = db.relationship('News', backref='user', lazy='dynamic')
+
+    @property
+    def password(self):
+        raise AttributeError('该属性不可读')
+
+    @password.setter
+    def password(self, value):
+        self.password_hash = generate_password_hash(value)
 
     def to_dict(self):
         resp_dict = {

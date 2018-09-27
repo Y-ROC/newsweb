@@ -39,7 +39,7 @@ def create_app(config_type):
     # 创建MySQL数据库连接
     db = SQLAlchemy(app)
     # 创建redis数据库连接
-    sr = StrictRedis(host=config_class.REDIS_HOST, port=config_class.REDIS_PORT)
+    sr = StrictRedis(host=config_class.REDIS_HOST, port=config_class.REDIS_PORT,decode_responses=True)
     # 创建session存储对象
     Session(app)
     # 创建迁移器
