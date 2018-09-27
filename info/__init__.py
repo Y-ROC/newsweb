@@ -44,9 +44,11 @@ def create_app(config_type):
     Session(app)
     # 创建迁移器
     Migrate(app, db)
-    from info.modules.home import home_blu
     # 3.注册蓝图
+    from info.modules.home import home_blu
     app.register_blueprint(home_blu)
+    from info.modules.passport import passport_blu
+    app.register_blueprint(passport_blu)
     # 配置日志
     setup_log(config_class.LOG_LEVEL)
     # 关联模型文件
