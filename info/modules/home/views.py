@@ -1,6 +1,6 @@
 from info import sr
 from info.constants import CLICK_RANK_MAX_NEWS
-from info.models import User, News
+from info.models import User, News, Category
 from info.modules.home import home_blu
 from flask import render_template, current_app, session
 
@@ -23,7 +23,13 @@ def index():
     except BaseException as e:
         current_app.logger.error(e)
     news_list = [news.to_basic_dict() for news in news_list]
-    return render_template('index.html', user=user, news_list=news_list)
+    #查询所有分类信息
+    categories=[]
+    try:
+        categories= Category.query.all()
+    except BaseException as e:
+        current_app.logger.error(e)
+    return render_template('index.html', user=user, news_list=news_list,categories=categories)
 
 
 # 设置网站小图标

@@ -1,13 +1,11 @@
 from flask import request, jsonify, current_app
-
 from info.constants import HOME_PAGE_MAX_NEWS
 from info.models import News
 from info.modules.news import news_blu
-
-# 获取新闻列表
 from info.utils.response_code import RET, error_map
 
 
+# 获取新闻列表
 @news_blu.route('/get_news_list')
 def get_news_list():
     # 获取参数
