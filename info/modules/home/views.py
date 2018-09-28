@@ -1,5 +1,6 @@
 from info import sr
-from info.models import User
+from info.constants import CLICK_RANK_MAX_NEWS
+from info.models import User, News
 from info.modules.home import home_blu
 from flask import render_template, current_app, session
 
@@ -15,7 +16,14 @@ def index():
         except BaseException as e:
             current_app.logger.error(e)
     user = user.to_dict() if user else None
-    return render_template('index.html', user=user)
+    # 查询点击量排行前十的新闻
+    news_list = []
+    try:
+        news_list = News.query.order_by(News.clicks.desc()).limit(CLICK_RANK_MAX_NEWS).all()
+    except BaseException as e:
+        current_app.logger.error(e)
+    news_list = [news.to_basic_dict() for news in news_list]
+    return render_template('index.html', user=user, news_list=news_list)
 
 
 # 设置网站小图标

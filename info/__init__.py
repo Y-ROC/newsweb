@@ -39,7 +39,7 @@ def create_app(config_type):
     # 创建MySQL数据库连接
     db = SQLAlchemy(app)
     # 创建redis数据库连接
-    sr = StrictRedis(host=config_class.REDIS_HOST, port=config_class.REDIS_PORT,decode_responses=True)
+    sr = StrictRedis(host=config_class.REDIS_HOST, port=config_class.REDIS_PORT, decode_responses=True)
     # 创建session存储对象
     Session(app)
     # 创建迁移器
@@ -53,5 +53,8 @@ def create_app(config_type):
     setup_log(config_class.LOG_LEVEL)
     # 关联模型文件
     import info.models
+    # 添加过滤器
+    from info.comments import func_index_convert
+    app.add_template_filter(func_index_convert, 'index_convert')
 
     return app
