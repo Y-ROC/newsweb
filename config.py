@@ -20,6 +20,8 @@ class Config(object):
     SECRET_KEY = 'ySB+rb2WNKamAqBU4lXU0zQdf2hz+XJ80esKpQ2krNx04Hhl8n3orTg5jwhadvti'
     # 设置session的过期时间
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+    # 设置每次请求完后自动提交
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
 
 # 开发环境配置

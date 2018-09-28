@@ -128,3 +128,32 @@ def register():
     session["user_id"] = user.id
     # 返回结果
     return jsonify(errno=RET.OK, errmsg=error_map[RET.OK])
+
+
+# 登录
+@passport_blu.route('/login', methods=['POST'])
+def login():
+    # 获取参数
+    mobile = request.json.get('mobile')
+    password = request.json.get('password')
+    # 校验参数
+    if not all([mobile, password]):
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 根据手机号取出用户模型
+    try:
+        user = User.query.filter_by(mobile=mobile).first()
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
+    # 校验用户是否存在
+    if not user:
+        return jsonify(errno=RET.USERERR, errmsg=error_map[RET.USERERR])
+    # 校验密码是否一致
+    if not user.check_password(password):
+        return jsonify(errno=RET.PARAMERR, errmsg='用户名或密码错误')
+    # 记录最后登录时间
+    user.last_login = datetime.now()
+    # 状态保持
+    session['user_id'] = user.id
+    # 将结果以json返回
+    return jsonify(errno=RET.OK, errmsg=error_map[RET.OK])
