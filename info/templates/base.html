@@ -40,9 +40,8 @@
 
 
 <div class="conter_con">
-    <ul class="list_con fl">
-    </ul>
-    {% block detail_block %}
+
+    {% block content_block %}
 
     {% endblock %}
     <div class="rank_con fr">
@@ -55,7 +54,7 @@
         <ul class="rank_list">
             {% for news in news_list %}
                 <li><span class="{{ loop.index | index_convert }}">{{ loop.index }}</span><a
-                        href="/news/1">{{ news.title }}</a></li>
+                        href="/news/{{ news.id }}">{{ news.title }}</a></li>
             {% endfor %}
         </ul>
     </div>

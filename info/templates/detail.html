@@ -8,7 +8,7 @@
     <script type="text/javascript" src="../static/news/js/detail.js"></script>
 {% endblock %}
 
-{% block detail_block %}
+{% block content_block %}
     <div class="detail_con fl">
         <h3>{{ news.title }}</h3>
         <div class="detail_about clearfix">
@@ -16,9 +16,16 @@
             <span class="comment fr">{{ news.comments_count }}</span>
         </div>
         {{ news.content|safe }}
-        <a href="javascript:;" class="collection block-center" data-newid="1" style="display: block;">收藏</a>
+
+        <a href="javascript:;" class="collection block-center" data-newid="{{ news.id }}"
+           style="display:  {% if is_collect %}
+               none{% else %}block
+           {% endif %};">收藏</a>
         <!-- TODO 已收藏上边display为none,下边display为block; -->
-        <a href="javascript:;" class="collected block-center" data-newid="1" style="display: none;">
+        <a href="javascript:;" class="collected block-center" data-newid="{{ news.id }}"
+           style="display: {% if is_collect %}
+               block{% else %} none
+           {% endif %};">
             <span class="out">已收藏</span><span class="over">取消收藏</span></a>
         <div class="comment_form_logout">
             登录发表你的评论

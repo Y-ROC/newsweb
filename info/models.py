@@ -14,8 +14,8 @@ class BaseModel(object):
 # 用户收藏表，建立用户与其收藏新闻多对多的关系
 tb_user_collection = db.Table(
     "info_user_collection",
-    db.Column("user_id", db.Integer, db.ForeignKey("info_user.id"), primary_key=True),  # 新闻编号
-    db.Column("news_id", db.Integer, db.ForeignKey("info_news.id"), primary_key=True),  # 分类编号
+    db.Column("user_id", db.Integer, db.ForeignKey("info_user.id"), primary_key=True),  # 用户id
+    db.Column("news_id", db.Integer, db.ForeignKey("info_news.id"), primary_key=True),  # 新闻编号
     db.Column("create_time", db.DateTime, default=datetime.now)  # 收藏创建时间
 )
 
