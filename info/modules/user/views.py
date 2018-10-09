@@ -1,13 +1,41 @@
 from info.comments import user_login_data
 from info.modules.user import user_blu
-from flask import render_template, g, redirect
-
+from flask import render_template, g, redirect, abort, request, jsonify
 
 # 显示个人中心
+from info.utils.response_code import RET, error_map
+
+
 @user_blu.route('/user_info')
 @user_login_data
 def user_info():
+    # 判断用户是否登录
     user = g.user
     if not user:
         return redirect('/')
     return render_template('user.html', user=user.to_dict())
+
+
+# 显示基本资料
+@user_blu.route('/base_info', methods=["POST", "GET"])
+@user_login_data
+def base_info():
+    # 判断用户是否登录
+    user = g.user
+    if not user:
+        return abort(403)
+    if request.method == 'GET':
+        return render_template('user_base_info.html', user=user.to_dict())
+    # POST处理
+    signature = request.json.get('signature')
+    nick_name = request.json.get('nick_name')
+    gender = request.json.get('gender')
+    if not all([signature, nick_name, gender]):
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    if gender not in ['MAN', 'WOMAN']:
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 修改用户模型
+    user.signature = signature
+    user.nick_name = nick_name
+    user.gender = gender
+    return jsonify(errno=RET.OK, errmsg=error_map[RET.OK])
