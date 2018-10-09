@@ -31,8 +31,8 @@
             <form action="" class="comment_form" data-newsid="{{ news.id }}">
                 <div class="person_pic">
                     <img {% if user.avatar_url %}
-                    src="{{ user.avatar_url  }}"
-                    {% else %}src="../static/news/images/person01.png"
+                        src="{{ user.avatar_url }}"
+                        {% else %}src="../static/news/images/person01.png"
                     {% endif %} alt="用户图标">
                 </div>
                 <textarea placeholder="请发表您的评论" class="comment_input"></textarea>
@@ -49,34 +49,38 @@
 
         <div class="comment_list_con">
             {% for comment in comments %}
-            <div class="comment_list">
-                <div class="person_pic fl">
-                     <img {% if comment.user.avatar_url %}
-                    src="{{ comment.user.avatar_url  }}"
-                    {% else %}src="../static/news/images/person01.png"
-                    {% endif %} alt="用户图标">
-                </div>
-                <div class="user_name fl">{{ comment.user.nick_name  }}</div>
-                <div class="comment_text fl">
-                    {{ comment.content }}
-                </div>
-            {% if comment.parent %}
-            <div class="reply_text_con fl">
-                    <div class="user_name2">{{ comment.parent.user.nick_name }}</div>
-                    <div class="reply_text">
-                        {{ comment.parent.content }}
+                <div class="comment_list">
+                    <div class="person_pic fl">
+                        <img {% if comment.user.avatar_url %}
+                            src="{{ comment.user.avatar_url }}"
+                            {% else %}src="../static/news/images/person01.png"
+                        {% endif %} alt="用户图标">
                     </div>
+                    <div class="user_name fl">{{ comment.user.nick_name }}</div>
+                    <div class="comment_text fl">
+                        {{ comment.content }}
+                    </div>
+                    {% if comment.parent %}
+                        <div class="reply_text_con fl">
+                            <div class="user_name2">{{ comment.parent.user.nick_name }}</div>
+                            <div class="reply_text">
+                                {{ comment.parent.content }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="comment_time fl">{{ comment.create_time }}</div>
+                    <a href="javascript:;" class="comment_up fr {% if comment.is_like %}
+                has_comment_up
+                {% endif %}" data-commentid="{{ comment.id }}" data-likecount="{{ comment.like_count }}">{% if comment.like_count %}
+                {{ comment.like_count }}{% else %}赞
+                {% endif %}</a>
+                    <a href="javascript:;" class="comment_reply fr">回复</a>
+                    <from class="reply_form fl" data-commentid="{{ comment.id }}" data-newsid="{{ news.id }}">
+                        <textarea class="reply_input"></textarea>
+                        <input type="submit" name="" value="回复" class="reply_sub fr">
+                        <input type="reset" name="" value="取消" class="reply_cancel fr">
+                    </from>
                 </div>
-            {% endif %}
-                <div class="comment_time fl">{{ comment.create_time }}</div>
-                <a href="javascript:;" class="comment_up fr" data-commentid="1">赞</a>
-                <a href="javascript:;" class="comment_reply fr">回复</a>
-                <from class="reply_form fl" data-commentid="{{ comment.id }}" data-newsid="{{ news.id }}">
-                    <textarea class="reply_input"></textarea>
-                    <input type="submit" name="" value="回复" class="reply_sub fr">
-                    <input type="reset" name="" value="取消" class="reply_cancel fr">
-                </from>
-            </div>
             {% endfor %}
         </div>
     </div>

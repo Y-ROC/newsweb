@@ -32,17 +32,26 @@ def news_detail(news_id):
     if user:
         if news in user.collection_news:
             is_collect = True
-    user = user.to_dict() if user else None
     # 查询该新闻的所有评论,进行模板渲染
     try:
         comments = news.comments.order_by(Comment.create_time.desc()).all()
     except BaseException as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
-    comments = [comment.to_dict() for comment in comments]
+
+    comment_list = []
+    for comment in comments:
+        comment_dict = comment.to_dict()
+        is_like = False
+        if user:
+            if comment in user.like_comments:
+                is_like = True
+        comment_dict["is_like"] = is_like
+        comment_list.append(comment_dict)
+    user = user.to_dict() if user else None
     # 将数据传入模板进行模板渲染
     return render_template('detail.html', user=user, news=news.to_dict(), news_list=news_list, is_collect=is_collect,
-                           comments=comments)
+                           comments=comment_list)
 
 
 # 收藏
@@ -132,3 +141,44 @@ def news_comment():
         return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
     # 返回json结果
     return jsonify(errno=RET.OK, errmsg=error_map[RET.OK], data=comment.to_dict())
+
+
+# 点赞
+@news_blu.route('/comment_like', methods=['POST'])
+@user_login_data
+def comment_like():
+    # 判断用户是否登录
+    user = g.user
+    if not user:
+        return jsonify(errno=RET.SESSIONERR, errmsg=error_map[RET.SESSIONERR])
+    # 获取参数
+    comment_id = request.json.get('comment_id')
+    action = request.json.get('action')
+    # 校验参数
+    if not all([comment_id, action]):
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    try:
+        comment_id = int(comment_id)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 判断该评论是否存在
+    try:
+        comment = Comment.query.get(comment_id)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
+    if not comment:
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    if action not in ["add", "remove"]:
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 根据action执行点赞和取消点赞操作
+    if action == 'add':
+        # 让user和comment建立关系
+        user.like_comments.append(comment)
+        comment.like_count += 1
+    else:
+        user.like_comments.remove(comment)
+        comment.like_count -= 1
+    # 返回json结果
+    return jsonify(errno=RET.OK, errmsg=error_map[RET.OK])

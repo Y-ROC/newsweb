@@ -27,7 +27,7 @@
                 {% else %}
                     src="../static/news/images/person01.png"
                 {% endif %}  class="lgin_pic">
-                <a href="#" id="nick_name">{{ user.nick_name }}</a>
+                <a href="{{ url_for('user.user_info') }}" id="nick_name">{{ user.nick_name }}</a>
                 <a href="javascript:;" onclick="logout()">退出</a>
             </div>
         {% else %}
@@ -44,7 +44,8 @@
     {% block content_block %}
 
     {% endblock %}
-    <div class="rank_con fr">
+{% block rank_block %}
+<div class="rank_con fr">
         {% block author_block %}
 
         {% endblock %}
@@ -58,6 +59,8 @@
             {% endfor %}
         </ul>
     </div>
+{% endblock %}
+
 </div>
 <div class="footer">
     <div class="footer_links">
