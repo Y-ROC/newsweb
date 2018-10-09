@@ -1,7 +1,8 @@
-from flask import current_app, abort, render_template, session, request, jsonify, g
+from flask import current_app, abort, render_template, request, jsonify, g
+from info import db
 from info.comments import user_login_data
 from info.constants import CLICK_RANK_MAX_NEWS
-from info.models import News
+from info.models import News, Comment
 from info.modules.news import news_blu
 from info.utils.response_code import RET, error_map
 
@@ -32,8 +33,16 @@ def news_detail(news_id):
         if news in user.collection_news:
             is_collect = True
     user = user.to_dict() if user else None
+    # 查询该新闻的所有评论,进行模板渲染
+    try:
+        comments = news.comments.order_by(Comment.create_time.desc()).all()
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
+    comments = [comment.to_dict() for comment in comments]
     # 将数据传入模板进行模板渲染
-    return render_template('detail.html', user=user, news=news.to_dict(), news_list=news_list, is_collect=is_collect)
+    return render_template('detail.html', user=user, news=news.to_dict(), news_list=news_list, is_collect=is_collect,
+                           comments=comments)
 
 
 # 收藏
@@ -44,7 +53,6 @@ def news_collect():
     user = g.user
     if not user:
         return jsonify(errno=RET.SESSIONERR, errmsg=error_map[RET.SESSIONERR])
-
     # 获取参数
     news_id = request.json.get('news_id')
     action = request.json.get('action')
@@ -74,3 +82,53 @@ def news_collect():
         user.collection_news.remove(news)
     # 返回json结果
     return jsonify(errno=RET.OK, errmsg=error_map[RET.OK])
+
+
+# 评论/回复
+@news_blu.route('/news_comment', methods=['POST'])
+@user_login_data
+def news_comment():
+    # 判断用户是否登录
+    user = g.user
+    if not user:
+        return jsonify(errno=RET.SESSIONERR, errmsg=error_map[RET.SESSIONERR])
+    # 获取参数
+    comment_content = request.json.get('comment')
+    news_id = request.json.get('news_id')
+    parent_id = request.json.get('parent_id')
+    # 校验参数
+    if not all([comment_content, news_id]):
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    try:
+        news_id = int(news_id)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 判断该新闻是否存在
+    try:
+        news = News.query.get(news_id)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
+    if not news:
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 生成一个评论数据添加到数据库中
+    comment = Comment()
+    comment.content = comment_content
+    comment.news_id = news_id
+    comment.user_id = user.id
+    if parent_id:
+        try:
+            parent_id = int(parent_id)
+            comment.parent_id = parent_id
+        except BaseException as e:
+            current_app.logger.error(e)
+            return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    try:
+        db.session.add(comment)
+        db.session.commit()  # 此处必须手动提交,否则不生成评论id,前端获取不到评论id
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
+    # 返回json结果
+    return jsonify(errno=RET.OK, errmsg=error_map[RET.OK], data=comment.to_dict())
