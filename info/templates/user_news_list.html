@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>用户中心</title>
+	<link rel="stylesheet" type="text/css" href="../static/news/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="../static/news/css/jquery.pagination.css">
+    <link rel="stylesheet" type="text/css" href="../static/news/css/main.css">
+    <script type="text/javascript" src="../static/news/js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="../static/news/js/jquery.pagination.min.js"></script>
+    <script type="text/javascript" src="../../static/news/js/page_control.js"></script> 
+</head>
+<body class="inframe_body">
+    <div class="news_list">
+        <h3>新闻列表</h3>
+        <ul class="article_list">
+       {% for news in data.news_list %}
+            {% if news.status == 0 %}
+                <li><a href="/news/{{ news.id }}">{{ news.title }}</a><em
+                        class="pass">已通过</em><span>{{ news.create_time }}</span></li>
+            {% elif news.status == 1 %}
+                <li><a href="#">{{ news.title }}</a><em class="review">审核中</em><span>{{ news.create_time }}</span></li>
+            {% else %}
+                <li>
+                    <a href="#">{{ news.title }}</a>
+                    <em class="nopass">未通过</em>
+                    <span>{{ news.create_time }}</span>
+                    <b>未通过原因：{{ news.reason }}</b>
+                </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+        <div id="pagination" class="page" cur_page="{{ data.cur_page }}" total_page="{{ data.total_page }}"
+         source="{{ url_for("user.news_list") }}"></div>
+    </div>
+</body>
+</html>

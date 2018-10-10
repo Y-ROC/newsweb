@@ -179,3 +179,39 @@ def news_release():
     # 添加到数据库中
     db.session.add(news)
     return jsonify(errno=RET.OK, errmsg=error_map[RET.OK])
+
+
+# 显示我的发布
+@user_blu.route('/news_list')
+@user_login_data
+def news_list():
+    # 判断用户是否登录
+    user = g.user
+    if not user:
+        return abort(403)
+    # 获取当前页码
+    p = request.args.get('p', 1)
+    try:
+        p = int(p)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 查询当前用户收藏的所有新闻
+    news_list = []
+    cur_page = 1
+    total_page = 1
+    try:
+        pn = user.news_list.order_by(News.create_time.desc()).paginate(p,
+                                                                       USER_COLLECTION_MAX_NEWS)
+        news_list = [news.to_review_dict() for news in pn.items]
+        cur_page = pn.page
+        total_page = pn.pages
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
+    data = {
+        "news_list": news_list,
+        "cur_page": cur_page,
+        "total_page": total_page
+    }
+    return render_template("user_news_list.html", data=data)
