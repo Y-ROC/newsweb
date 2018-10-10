@@ -1,6 +1,7 @@
+from info import db
 from info.comments import user_login_data, img_upload
-from info.constants import USER_COLLECTION_MAX_NEWS
-from info.models import tb_user_collection
+from info.constants import USER_COLLECTION_MAX_NEWS, QINIU_DOMIN_PREFIX
+from info.models import tb_user_collection, Category, News
 from info.modules.user import user_blu
 from flask import render_template, g, redirect, abort, request, jsonify, current_app
 
@@ -127,3 +128,54 @@ def collection():
         "total_page": total_page
     }
     return render_template("user_collection.html", data=data)
+
+
+# 显示界面/发布新闻
+@user_blu.route('/news_release', methods=['GET', 'POST'])
+@user_login_data
+def news_release():
+    # 判断用户是否登录
+    user = g.user
+    if not user:
+        return abort(403)
+    if request.method == 'GET':
+        categories = []
+        try:
+            categories = Category.query.all()
+        except BaseException as e:
+            current_app.logger.error(e)
+            return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
+        if len(categories):
+            categories.pop(0)
+        return render_template("user_news_release.html", categories=categories)
+    # POST处理
+    title = request.form.get('title')
+    category_id = request.form.get('category_id')
+    digest = request.form.get('digest')
+    content = request.form.get('content')
+    if not all([title, category_id, digest, content]):
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    try:
+        category_id = int(category_id)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 生成一个新的新闻模型
+    news = News()
+    news.title = title
+    news.content = content
+    news.digest = digest
+    news.category_id = category_id
+    news.source = '个人发布'
+    news.user_id = user.id
+    news.status = 1
+    try:
+        img_bytes = request.files.get('index_image').read()
+        file_name = img_upload(img_bytes)
+        news.index_image_url = QINIU_DOMIN_PREFIX + file_name
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 添加到数据库中
+    db.session.add(news)
+    return jsonify(errno=RET.OK, errmsg=error_map[RET.OK])
