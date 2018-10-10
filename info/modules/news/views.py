@@ -50,7 +50,7 @@ def news_detail(news_id):
         comment_list.append(comment_dict)
     user = user.to_dict() if user else None
     # 将数据传入模板进行模板渲染
-    return render_template('detail.html', user=user, news=news.to_dict(), news_list=news_list, is_collect=is_collect,
+    return render_template('news/detail.html', user=user, news=news.to_dict(), news_list=news_list, is_collect=is_collect,
                            comments=comment_list)
 
 

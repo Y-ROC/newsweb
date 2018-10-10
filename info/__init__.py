@@ -68,6 +68,6 @@ def create_app(config_type):
     def error_handle_404(error):
         user = g.user
         user = user.to_dict() if user else None
-        return render_template("404.html", user=user)
+        return render_template("news/404.html", user=user)
 
     return app
