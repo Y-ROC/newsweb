@@ -1,4 +1,6 @@
 from info.comments import user_login_data, img_upload
+from info.constants import USER_COLLECTION_MAX_NEWS
+from info.models import tb_user_collection
 from info.modules.user import user_blu
 from flask import render_template, g, redirect, abort, request, jsonify, current_app
 
@@ -89,3 +91,39 @@ def pass_info():
     # 校验正确,修改密码
     user.password = new_password
     return jsonify(errno=RET.OK, errmsg=error_map[RET.OK])
+
+
+# 显示我的收藏
+@user_blu.route('/collection')
+@user_login_data
+def collection():
+    # 判断用户是否登录
+    user = g.user
+    if not user:
+        return abort(403)
+    # 获取当前页码
+    p = request.args.get('p', 1)
+    try:
+        p = int(p)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+    # 查询当前用户收藏的所有新闻
+    news_list = []
+    cur_page = 1
+    total_page = 1
+    try:
+        pn = user.collection_news.order_by(tb_user_collection.c.create_time.desc()).paginate(p,
+                                                                                             USER_COLLECTION_MAX_NEWS)
+        news_list = [news.to_basic_dict() for news in pn.items]
+        cur_page = pn.page
+        total_page = pn.pages
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
+    data = {
+        "news_list": news_list,
+        "cur_page": cur_page,
+        "total_page": total_page
+    }
+    return render_template("user_collection.html", data=data)
