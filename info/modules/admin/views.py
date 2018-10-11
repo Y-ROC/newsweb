@@ -1,8 +1,8 @@
 import time
 from datetime import datetime, timedelta
 
-from info.comments import user_login_data
-from info.constants import ADMIN_USER_PAGE_MAX_COUNT, ADMIN_NEWS_PAGE_MAX_COUNT
+from info.comments import user_login_data, img_upload
+from info.constants import ADMIN_USER_PAGE_MAX_COUNT, ADMIN_NEWS_PAGE_MAX_COUNT, QINIU_DOMIN_PREFIX
 from info.models import User, News, Category
 from info.modules.admin import admin_blu
 from flask import render_template, request, redirect, url_for, session, current_app, abort, g, jsonify
@@ -288,3 +288,54 @@ def news_edit_detail(news_id):
         category_list.pop(0)
     # 将数据传入模板渲染
     return render_template('admin/news_edit_detail.html', news=news.to_dict(), category_list=category_list)
+
+
+# 提交编辑
+@admin_blu.route('/news_edit_detail', methods=['POST'])
+def news_edit_action():
+    # 获取参数
+    news_id = request.form.get("news_id")
+    category_id = request.form.get("category_id")
+    title = request.form.get("title")
+    digest = request.form.get("digest")
+    content = request.form.get("content")
+    index_image = request.files.get("index_image")
+    # 校验参数
+    if not all([news_id, category_id, title, digest, content]):
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+
+    try:
+        news_id = int(news_id)
+        category_id = int(category_id)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+
+    # 取出新闻模型
+    try:
+        news = News.query.get(news_id)
+        category = Category.query.get(category_id)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg=error_map[RET.DBERR])
+
+    if not news or not category:
+        return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+
+    # 修改数据
+    news.title = title
+    news.digest = digest
+    news.category_id = category_id
+    news.content = content
+
+    if index_image:
+        try:
+            img_bytes = index_image.read()
+            file_name = img_upload(img_bytes)
+            news.index_image_url = QINIU_DOMIN_PREFIX + file_name
+        except BaseException as e:
+            current_app.logger.error(e)
+            return jsonify(errno=RET.PARAMERR, errmsg=error_map[RET.PARAMERR])
+
+    # json返回
+    return jsonify(errno=RET.OK, errmsg=error_map[RET.OK])
