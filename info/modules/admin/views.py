@@ -1,10 +1,11 @@
 import time
 from datetime import datetime, timedelta
 
-from info.constants import ADMIN_USER_PAGE_MAX_COUNT
-from info.models import User
+from info.comments import user_login_data
+from info.constants import ADMIN_USER_PAGE_MAX_COUNT, ADMIN_NEWS_PAGE_MAX_COUNT
+from info.models import User, News
 from info.modules.admin import admin_blu
-from flask import render_template, request, redirect, url_for, session, current_app, abort
+from flask import render_template, request, redirect, url_for, session, current_app, abort, g
 
 
 # 后台登录
@@ -40,8 +41,10 @@ def login():
 
 # 后台首页
 @admin_blu.route('/index')
+@user_login_data
 def index():
-    return render_template("admin/index.html")
+    user = g.user
+    return render_template("admin/index.html", user=user)
 
 
 # 退出
@@ -137,3 +140,49 @@ def user_list():
         "total_page": total_page
     }
     return render_template("admin/user_list.html", data=data)
+
+
+# 显示新闻审核列表
+@admin_blu.route('/news_review')
+def news_review():
+    # 获取当前页码
+    p = request.args.get("p", 1)
+    keyword = request.args.get('keyword')
+    try:
+        p = int(p)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return abort(403)
+    # 判断如果设置了keyword,添加对应的过滤条件
+    filter_list = []
+    if keyword:
+        filter_list.append(News.title.contains(keyword))
+    # 查询所有新闻的信息 指定页码
+    news_list = []
+    cur_page = 1
+    total_page = 1
+    try:
+        pn = News.query.filter(*filter_list).paginate(p, ADMIN_NEWS_PAGE_MAX_COUNT)
+        news_list = [news.to_review_dict() for news in pn.items]
+        cur_page = pn.page
+        total_page = pn.pages
+    except BaseException as e:
+        current_app.logger.error(e)
+    data = {
+        "news_list": news_list,
+        "cur_page": cur_page,
+        "total_page": total_page
+    }
+    return render_template("admin/news_review.html", data=data)
+
+
+# 显示新闻审核详情
+@admin_blu.route('/news_review_detail/<int:news_id>')
+def news_review_detail(news_id):
+    # 根据新闻id取出新闻模型
+    try:
+        news = News.query.get(news_id)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return abort(404)
+    return render_template("admin/news_review_detail.html", news=news.to_dict())
