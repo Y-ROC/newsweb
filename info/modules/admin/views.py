@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from info.models import User
 from info.modules.admin import admin_blu
@@ -81,9 +81,29 @@ def user_count():
         day_count = User.query.filter(User.is_admin == False, User.create_time >= date_day).count()
     except BaseException as e:
         current_app.logger.error(e)
+
+    # 获取前三十天每日注册的人数(注册日期>=某日0点,<=次日0点)
+    active_count = []
+    active_time = []
+    for i in range(30):
+        begin_date = date_day - timedelta(days=i)
+        end_date = date_day + timedelta(days=1 - i)
+        try:
+            one_day_count = User.query.filter(User.is_admin == False, User.create_time >= begin_date,
+                                              User.create_time <= end_date).count()
+            active_count.append(one_day_count)
+            one_day_str = begin_date.strftime("%Y-%m-%d")
+            active_time.append(one_day_str)
+        except BaseException as e:
+            current_app.logger.error(e)
+
+    active_count.reverse()
+    active_time.reverse()
     data = {
         "total_count": total_count,
         "mon_count": mon_count,
-        "day_count": day_count
+        "day_count": day_count,
+        "active_count": active_count,
+        "active_time": active_time
     }
     return render_template('admin/user_count.html', data=data)
