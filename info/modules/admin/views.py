@@ -1,9 +1,10 @@
 import time
 from datetime import datetime, timedelta
 
+from info.constants import ADMIN_USER_PAGE_MAX_COUNT
 from info.models import User
 from info.modules.admin import admin_blu
-from flask import render_template, request, redirect, url_for, session, current_app
+from flask import render_template, request, redirect, url_for, session, current_app, abort
 
 
 # 后台登录
@@ -107,3 +108,32 @@ def user_count():
         "active_time": active_time
     }
     return render_template('admin/user_count.html', data=data)
+
+
+# 显示用户列表
+@admin_blu.route('/user_list')
+def user_list():
+    # 获取当前页码
+    p = request.args.get("p", 1)
+    try:
+        p = int(p)
+    except BaseException as e:
+        current_app.logger.error(e)
+        return abort(403)
+    # 查询所有用户的信息 指定页码
+    user_list = []
+    cur_page = 1
+    total_page = 1
+    try:
+        pn = User.query.filter(User.is_admin == False).paginate(p, ADMIN_USER_PAGE_MAX_COUNT)
+        user_list = [user.to_admin_dict() for user in pn.items]
+        cur_page = pn.page
+        total_page = pn.pages
+    except BaseException as e:
+        current_app.logger.error(e)
+    data = {
+        "user_list": user_list,
+        "cur_page": cur_page,
+        "total_page": total_page
+    }
+    return render_template("admin/user_list.html", data=data)
