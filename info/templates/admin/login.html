@@ -19,6 +19,7 @@
         {% endif %}
 
 		<input type="submit" value="登 录" class="input_sub">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 	</form>
 	<div class="login_bg"></div>
 </body>

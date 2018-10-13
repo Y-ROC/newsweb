@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     {% block title_block %}
 
     {% endblock %}
@@ -9,6 +10,8 @@
     <link rel="stylesheet" type="text/css" href="../../static/news/css/main.css">
     <script type="text/javascript" src="../../static/news/js/jquery-1.12.4.min.js"></script>
     <script type="text/javascript" src="../../static/news/js/main.js"></script>
+    <script type="text/javascript" src="../../static/news/js/csrf.js"></script>
+
     {% block script_block %}
 
     {% endblock %}
@@ -44,40 +47,40 @@
     {% block content_block %}
 
     {% endblock %}
-{% block rank_block %}
-<div class="rank_con fr">
-        {% block author_block %}
+    {% block rank_block %}
+        <div class="rank_con fr">
+            {% block author_block %}
 
-        {% endblock %}
-        <div class="rank_title">
-            <h3>点击排行</h3>
+            {% endblock %}
+            <div class="rank_title">
+                <h3>点击排行</h3>
+            </div>
+            <ul class="rank_list">
+                {% for news in news_list %}
+                    <li><span class="{{ loop.index | index_convert }}">{{ loop.index }}</span><a
+                            href="/news/{{ news.id }}">{{ news.title }}</a></li>
+                {% endfor %}
+            </ul>
         </div>
-        <ul class="rank_list">
-            {% for news in news_list %}
-                <li><span class="{{ loop.index | index_convert }}">{{ loop.index }}</span><a
-                        href="/news/{{ news.id }}">{{ news.title }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
-{% endblock %}
+    {% endblock %}
 
 </div>
 {% block footer_block %}
-  <div class="footer">
-    <div class="footer_links">
-        <a href="">关于我们</a>
-        <span>|</span>
-        <a href="">联系我们</a>
-        <span>|</span>
-        <a href="">招聘人才</a>
-        <span>|</span>
-        <a href="">友情链接</a>
+    <div class="footer">
+        <div class="footer_links">
+            <a href="">关于我们</a>
+            <span>|</span>
+            <a href="">联系我们</a>
+            <span>|</span>
+            <a href="">招聘人才</a>
+            <span>|</span>
+            <a href="">友情链接</a>
+        </div>
+        <p class="copyright">
+            CopyRight © 2018 新经资讯信息技术有限公司 All Rights Reserved<br/>
+            电话：010-****888 京ICP备*******8号
+        </p>
     </div>
-    <p class="copyright">
-        CopyRight © 2018 新经资讯信息技术有限公司 All Rights Reserved<br/>
-        电话：010-****888 京ICP备*******8号
-    </p>
-</div>
 {% endblock %}
 
 

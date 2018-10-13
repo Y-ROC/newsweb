@@ -5,6 +5,7 @@ from flask import Flask, g, render_template
 from flask_migrate import Migrate
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import CSRFProtect
 from redis import StrictRedis
 
 from config import config_dict
@@ -72,4 +73,6 @@ def create_app(config_type):
         user = user.to_dict() if user else None
         return render_template("news/404.html", user=user)
 
+    # 开启CSRF保护
+    CSRFProtect(app)
     return app

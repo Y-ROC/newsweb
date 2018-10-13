@@ -46,6 +46,7 @@
             <input type="submit" value="发 布" class="input_sub input_sub2">
         </div>
         <div class="error_tip2">错误提示</div>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     </form>
     <script>
     $(function() {

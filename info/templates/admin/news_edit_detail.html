@@ -14,53 +14,54 @@
 </head>
 
 <body>
-    <div class="breadcrub">
-        当前位置：新闻管理>新闻版本编辑
-    </div>
-    <div class="pannel">
-        <form class="news_edit">
-            <h3 class="review_title">新闻版式编辑</h3>
-            <div class="form_group">
-                <label>新闻标题：</label>
-                  <input type="text" name="title" class="input_txt2" value="{{ news.title }}">
-            </div>
-            <div class="form_group">
-                <label>新闻分类：</label>
-                <select class="sel_opt" name="category_id">
-                    {% for category in category_list %}
+<div class="breadcrub">
+    当前位置：新闻管理>新闻版本编辑
+</div>
+<div class="pannel">
+    <form class="news_edit">
+        <h3 class="review_title">新闻版式编辑</h3>
+        <div class="form_group">
+            <label>新闻标题：</label>
+            <input type="text" name="title" class="input_txt2" value="{{ news.title }}">
+        </div>
+        <div class="form_group">
+            <label>新闻分类：</label>
+            <select class="sel_opt" name="category_id">
+                {% for category in category_list %}
 
-                        <option value="{{ category.id }}"
-                                {% if category.is_selected %}selected{% endif %}>{{ category.name }}</option>
-                    {% endfor %}
+                    <option value="{{ category.id }}"
+                            {% if category.is_selected %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
 
-                </select>
+            </select>
+        </div>
+        <div class="form_group">
+            <label>新闻摘要：</label>
+            <textarea class="input_multxt" name="digest">{{ news.digest }}</textarea>
+        </div>
+        <div class="form_group">
+            <label>索引图片：</label>
+            <img src="{{ news.index_image_url }}" alt="索引图片" class="index_pic">
+        </div>
+        <div class="form_group">
+            <label>上传图片：</label>
+            <input type="file" class="input_file" name="index_image">
+        </div>
+        <div class="form_group">
+            <label>新闻内容：</label>
+            <div class="rich_wrap fl">
+                <input class="input_area" id="rich_content" name="content" value="{{ news.content }}"></input>
             </div>
-            <div class="form_group">
-                <label>新闻摘要：</label>
-                <textarea class="input_multxt" name="digest">{{ news.digest }}</textarea>
-            </div>
-            <div class="form_group">
-                <label>索引图片：</label>
-                <img src="{{ news.index_image_url }}" alt="索引图片" class="index_pic">
-            </div>
-            <div class="form_group">
-                <label>上传图片：</label>
-                <input type="file" class="input_file" name="index_image">
-            </div>
-            <div class="form_group">
-                <label>新闻内容：</label>
-                <div class="rich_wrap fl">
-                    <input class="input_area" id="rich_content" name="content" value="{{ news.content }}"></input>
-                </div>
-            </div>
-            <div class="form_group indent_group line_top">
-                <input type="submit" value="确定" class="confirm">
-                <input type="button" value="取消" class="cancel" onclick="cancel()">
-            </div>
-            <!-- 隐藏字段,传递news_id -->
-            <input type="hidden" name="news_id" value="{{ news.id }}">
-        </form>
-    </div>
+        </div>
+        <div class="form_group indent_group line_top">
+            <input type="submit" value="确定" class="confirm">
+            <input type="button" value="取消" class="cancel" onclick="cancel()">
+        </div>
+        <!-- 隐藏字段,传递news_id -->
+        <input type="hidden" name="news_id" value="{{ news.id }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    </form>
+</div>
 </body>
 
 </html>

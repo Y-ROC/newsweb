@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>新经资讯后台管理</title>
     <link rel="stylesheet" type="text/css" href="../../static/admin/css/reset.css">
     <link rel="stylesheet" type="text/css" href="../../static/admin/css/main.css">
     <script type="text/javascript" src="../../static/admin/js/jquery-1.12.4.min.js"></script>
     <script src="../../static/admin/tinymce/js/tinymce/tinymce.min.js"></script>
     <script src="../../static/admin/js/news_review_detail.js"></script>
+    <script src="../../static/news/js/csrf.js"></script>
 </head>
 <body>
     <div class="breadcrub">
