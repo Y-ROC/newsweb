@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>用户中心</title>
+    <link rel="stylesheet" type="text/css" href="../../static/news/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../../static/news/css/jquery.pagination.css">
+    <link rel="stylesheet" type="text/css" href="../../static/news/css/main.css">
+    <script type="text/javascript" src="../../static/news/js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="../../static/news/js/jquery.pagination.min.js"></script>
+    <script type="text/javascript" src="../../static/news/js/user_follow.js"></script>
+    <script type="text/javascript" src="../../static/news/js/page_control.js"></script>
+</head>
+
+<body class="inframe_body">
+    <h3 class="common_title">我的关注</h3>
+    <ul class="card_list_con">
+      {% for author in data.author_list %}
+        <li class="author_card card_list">
+        <a href="/user/other?user_id=1" target="_blank" class="author_pic"><img {% if author.avatar_url %}src="{{ author.avatar_url }}" {% else %} src="../../static/news/images/cat.jpg" {% endif %} alt="author_pic"></a>
+        <a href="/user/other?user_id=1" target="_blank" class="author_name">{{ author.nick_name }}</a>
+        <div class="author_resume">{{ author.signature }}</div>
+        <div class="writings"><span>总篇数</span><b>{{ author.news_count }}</b></div>
+        <div class="follows"><span>粉丝</span><b>{{ author.followers_count }}</b></div>
+        <a href="javascript:;" class="focus fr" style="display: none" data-userid="{{ author.id }}">关注</a>
+        <a href="javascript:;" class="focused fr" style="display: block" data-userid="{{ author.id }}"><span class="out">已关注</span><span class="over">取消关注</span></a>
+    </li>
+    {% endfor %}
+
+</ul>
+<div id="pagination" class="page" cur_page="{{ data.cur_page }}" total_page="{{ data.total_page }}" source="{{ url_for("user.user_follow") }}"></div>
+</body>
+
+</html>
